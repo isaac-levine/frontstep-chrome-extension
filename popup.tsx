@@ -5,6 +5,7 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
+  useAuth,
   UserButton
 } from "@clerk/chrome-extension"
 import { InboxIcon, RefreshCwIcon, SendIcon } from "lucide-react"
@@ -40,6 +41,7 @@ interface EmailData {
 type SendStatus = "sending" | "success" | "error" | null
 
 function IndexPopup() {
+  const { getToken, userId, orgId } = useAuth()
   const [emailData, setEmailData] = useState<EmailData | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -167,30 +169,29 @@ function IndexPopup() {
     setSendStatus("sending")
 
     try {
-      // You would replace this with your actual Frontstep API endpoint
-      const response = await fetch("https://api.frontstep.com/leads", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer YOUR_API_KEY_HERE" // You should store this securely
-        },
-        body: JSON.stringify({
-          source: "Gmail Extension",
-          leadData: {
-            name: emailData.from.name,
-            email: emailData.from.email,
-            subject: emailData.subject,
-            message: emailData.body,
-            receivedAt: emailData.date
-          }
-        })
-      })
+      const response = await fetch(
+        "https://frontstep.ai/api/webhooks/handoff",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            emailContent: emailData.body,
+            organizationId: orgId,
+            senderEmail: emailData.from.email,
+            senderName: emailData.from.name
+          })
+        }
+      )
+
+      const data = await response.json()
 
       if (response.ok) {
         setSendStatus("success")
         setTimeout(() => setSendStatus(null), 3000)
       } else {
-        throw new Error(`API Error: ${response.statusText}`)
+        throw new Error(data.error || `API Error: ${response.statusText}`)
       }
     } catch (err) {
       console.error("Error sending to Frontstep:", err)
