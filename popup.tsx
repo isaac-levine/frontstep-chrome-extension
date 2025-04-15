@@ -259,7 +259,7 @@ function IndexPopup() {
                 Please sign in to continue
               </p>
               <SignInButton mode="modal">
-                <button className="plasmo-bg-blue-600 plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded-lg plasmo-text-sm plasmo-font-medium hover:plasmo-bg-blue-700 plasmo-transition-colors plasmo-shadow-sm">
+                <button className=" plasmo-text-white plasmo-px-4 plasmo-py-2 plasmo-rounded-lg plasmo-text-sm plasmo-font-medium  plasmo-transition-colors plasmo-shadow-sm !plasmo-bg-orange-500 plasmo-text-white hover:!plasmo-bg-orange-600 plasmo-shadow-sm">
                   Sign In
                 </button>
               </SignInButton>
