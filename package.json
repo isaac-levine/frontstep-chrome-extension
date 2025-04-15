@@ -31,7 +31,6 @@
     "typescript": "5.3.3"
   },
   "manifest": {
-    "key": "$CRX_PUBLIC_KEY",
     "permissions": [
       "identity",
       "storage",

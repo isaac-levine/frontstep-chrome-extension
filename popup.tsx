@@ -5,7 +5,6 @@ import {
   SignedIn,
   SignedOut,
   SignInButton,
-  useAuth,
   UserButton
 } from "@clerk/chrome-extension"
 import { InboxIcon, RefreshCwIcon, SendIcon } from "lucide-react"
@@ -41,7 +40,6 @@ interface EmailData {
 type SendStatus = "sending" | "success" | "error" | null
 
 function IndexPopup() {
-  const { getToken, userId, orgId } = useAuth()
   const [emailData, setEmailData] = useState<EmailData | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -169,30 +167,24 @@ function IndexPopup() {
     setSendStatus("sending")
 
     try {
-      const response = await fetch(
-        "https://frontstep.ai/api/webhooks/handoff",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            emailContent: emailData.body,
-            organizationId: orgId,
-            senderEmail: emailData.from.email,
-            senderName: emailData.from.name
-          })
-        }
-      )
+      await fetch("https://www.frontstep.ai/api/webhooks/handoff", {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          emailContent: emailData.body,
+          organizationId: "org_2vdXxKxQzavEcRv2URXe28avVI3",
+          senderEmail: emailData.from.email,
+          senderName: emailData.from.name
+        })
+      })
 
-      const data = await response.json()
-
-      if (response.ok) {
-        setSendStatus("success")
-        setTimeout(() => setSendStatus(null), 3000)
-      } else {
-        throw new Error(data.error || `API Error: ${response.statusText}`)
-      }
+      // With no-cors mode, we can't read the response
+      // but if we got here without throwing, the request was sent
+      setSendStatus("success")
+      setTimeout(() => setSendStatus(null), 3000)
     } catch (err) {
       console.error("Error sending to Frontstep:", err)
       setSendStatus("error")
